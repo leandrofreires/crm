@@ -10,7 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-var collection = "user"
+var userCollection = "user"
 
 //User is a model
 type User struct {
