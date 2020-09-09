@@ -20,7 +20,7 @@ func CreateUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": merr.WriteErrors[0].Message})
 		return
 	}
-	c.JSON(http.StatusOK, user)
+	c.JSON(http.StatusCreated, user)
 }
 func GetUsers(c *gin.Context) {
 	var user model.User
