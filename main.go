@@ -60,6 +60,7 @@ func main() {
 	defer func() {
 		if err := client.Disconnect(context.Background()); err != nil {
 			log.Fatal("Server forced to disconected from database:", err)
+			return
 		}
 		fmt.Print("Sucess disconnected")
 	}()
