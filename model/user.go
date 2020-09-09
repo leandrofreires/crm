@@ -18,6 +18,7 @@ type User struct {
 	FirstName string             `bson:"first_name,omitempty" json:"first_name,omitempty" binding:"required"`
 	LastName  string             `bson:"last_name,omitempty" json:"last_name,omitempty" binding:"required"`
 	Email     string             `bson:"email,omitempty" json:"email,omitempty" binding:"required,email"`
+	Password  string             `bson:"password,omitempty" password:"email,omitempty" binding:"required"`
 }
 
 //FullName in database
@@ -29,7 +30,7 @@ func (u *User) FullName() string {
 func (u *User) Save() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	insertResult, err := database.Db.Collection(collection).InsertOne(ctx, u)
+	insertResult, err := database.Db.Collection(userCollection).InsertOne(ctx, u)
 	if err != nil {
 		return err
 	}
@@ -45,7 +46,7 @@ func (u *User) GetUsers() ([]User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	cur, err := database.Db.Collection(collection).Find(ctx, bson.D{})
+	cur, err := database.Db.Collection(userCollection).Find(ctx, bson.D{})
 	if err != nil {
 		return nil, err
 	}
