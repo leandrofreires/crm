@@ -85,6 +85,7 @@ func (a *Article) GetArticle() error {
 func (a *Article) UpdateArticle() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
+	a.init()
 	result := database.Db.Collection(articleCollection).FindOneAndUpdate(ctx, bson.M{"_id": a.ID}, bson.M{"$set": a, "$currentDate": bson.M{"modified_at": true}})
 	if result.Err() != nil {
 		return result.Err()

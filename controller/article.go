@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"html"
 	"log"
 	"net/http"
@@ -8,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"github.com/leandrofreires/crm/model"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -66,16 +68,28 @@ func GetArticle(c *gin.Context) {
 func UpdateArticle(c *gin.Context) {
 	var article model.Article
 	if err := c.ShouldBind(&article); err != nil {
-		s := strings.SplitN(err.Error(), "\n", -1)
-		c.JSON(http.StatusBadRequest, s)
+		e := make(map[string]string)
+
+		for _, fieldErr := range err.(validator.ValidationErrors) {
+			e[strings.ToLower(fieldErr.Field())] = fmt.Sprintf("validation failed on field condition: %v", fieldErr.ActualTag())
+		}
+		c.JSON(http.StatusBadRequest, gin.H{"error": e})
+		return
+
+	}
+	objectID, err := primitive.ObjectIDFromHex(html.EscapeString(c.Param("id")))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "o parametro passado como id não corresponde a um id válido"})
+		return
+	}
+	if objectID != article.ID {
+		article.ID = objectID
+	}
+
+	if err := article.UpdateArticle(); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ocorreu um erro ao salvar a atualização"})
 		return
 	}
 	c.JSON(http.StatusOK, article)
 	return
-	// objectID, err := primitive.ObjectIDFromHex(html.EscapeString(c.Param("id")))
-	// if err != nil {
-	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "o parametro passado como id não corresponde a um id válido"})
-	// 	return
-	// }
-
 }
